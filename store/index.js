@@ -2,7 +2,7 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 
 // API mock mode
-const MOCK = false
+const MOCK = true
 const clusterApiBaselUrl = 'http://127.0.0.1:5000/post-json'
 
 export const state = () => ({

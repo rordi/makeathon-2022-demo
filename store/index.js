@@ -1,11 +1,9 @@
 import axios from 'axios'
+import MockAdapter from 'axios-mock-adapter'
 
-/*
- * Config for the OpenWeather API
- * @see https://openweathermap.org/
- */
-const weatherApiKey = '3978da9f7417a95247e8f31df0cf1f27'
-const weatherApiBaselUrl = `http://api.openweathermap.org/data/2.5/weather?appid=${weatherApiKey}`
+// API mock mode
+const MOCK = true
+const clusterApiBaselUrl = 'http://localhost/predict'
 
 export const state = () => ({
   loading: true, // app starts in loading mode
@@ -42,13 +40,19 @@ export const mutations = {
 }
 
 export const actions = {
-  getWeather ({ commit }) {
+  getCluster ({ commit }) {
     commit('START_LOADING')
 
     return new Promise((resolve, reject) => {
-      // todo - pull weather data for Basel
-      const url = weatherApiBaselUrl
-      axios.get(url)
+      if (MOCK) {
+        const mock = new MockAdapter(axios)
+        mock.onGet('http://localhost/predict').reply(200, {
+          cluster: 123,
+          score: 0.43
+        })
+      }
+
+      axios.get(clusterApiBaselUrl)
         .then((response) => {
           resolve(response)
         })

@@ -16,7 +16,7 @@
           <textarea id="abstract" v-model="abstract" />
         </div>
         <div class="row submit">
-          <button>
+          <button @click="submitData()">
             Find Experts
           </button>
           <button class="random" @click="fillRandomData()">
@@ -80,15 +80,20 @@ export default {
     ...mapActions({
       ...mapGetters(['isLoading']),
       ...mapMutations(['END_LOADING']),
-      ...mapActions(['getWeather'])
+      ...mapActions(['getCluster'])
     }),
     fillRandomData () {
-      console.log('clicked...')
+      console.log('clicked random...')
       let rand = Math.round(Math.random(0, 1) * (this.random.length - 1))
-      console.log(rand)
       this.title = this.random[rand].title
       this.abstract = this.random[rand].abstract
       rand = 0
+    },
+    submitData () {
+      console.log('clicked submit...')
+      this.getCluster().then((res) => {
+        console.log(res)
+      })
     }
   }
 }

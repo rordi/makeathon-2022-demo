@@ -2,15 +2,15 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 
 // API mock mode
-const MOCK = true
-const clusterApiBaselUrl = 'http://localhost/predict'
+const MOCK = false
+const clusterApiBaselUrl = 'http://127.0.0.1:5000/post-json'
 
 export const state = () => ({
   loading: true, // app starts in loading mode
   submitted: false,
   title: '',
   abstract: '',
-  currentWeather: {}
+  cluster: null
 })
 
 export const getters = {
@@ -30,6 +30,10 @@ export const mutations = {
     state.submitted = !!submitted
   },
 
+  setCluster: (state, cluster) => {
+    state.cluster = cluster
+  },
+
   setTitle: (state, title) => {
     state.title = title
   },
@@ -40,28 +44,34 @@ export const mutations = {
 }
 
 export const actions = {
-  getCluster ({ commit }) {
-    commit('START_LOADING')
+  getCluster ({ commit, state }) {
+    commit('setSubmitted', false)
+    commit('setCluster', null)
 
     return new Promise((resolve, reject) => {
       if (MOCK) {
         const mock = new MockAdapter(axios)
-        mock.onGet('http://localhost/predict').reply(200, {
-          cluster: 123,
+        mock.onPost(clusterApiBaselUrl).reply(200, {
+          cluster: Math.round(Math.random() * 600),
           score: 0.43
         })
       }
 
-      axios.get(clusterApiBaselUrl)
+      axios.post(clusterApiBaselUrl, {
+        title: state.title,
+        abstract: state.abstract
+      })
         .then((response) => {
+          commit('setSubmitted', true)
+          if (response.data.cluster) {
+            commit('setCluster', response.data.cluster)
+          }
           resolve(response)
         })
         .catch((error) => {
+          console.error(error)
           reject(error)
         })
-        .finally(
-          commit('END_LOADING')
-        )
     })
   }
 }
